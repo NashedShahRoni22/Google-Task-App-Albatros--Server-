@@ -81,6 +81,19 @@ async function run() {
       const result = await taskCollection.find(query).toArray();
       res.send(result);
     })
+    //task not complete
+    app.put("/taskNotComplete/:id", async(req, res)=>{
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          isCompleted: false
+        },
+      };
+      const result = await taskCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
   } finally {
   }
 }
