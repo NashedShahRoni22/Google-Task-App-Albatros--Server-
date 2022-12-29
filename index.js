@@ -1,7 +1,8 @@
 const express = require("express");
-const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
 const app = express();
+const cors = require("cors");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { query } = require("express");
 const port = process.env.PORT || 8000;
 //middleware
 app.use(cors());
@@ -27,6 +28,59 @@ async function run() {
       const result = await taskCollection.insertOne(task);
       res.send(result);
     });
+    //get task
+    app.get("/alltask", async (req, res) => {
+      const query = {isCompleted:false};
+      const result = await taskCollection.find(query).toArray();
+      res.send(result);
+    });
+    //delete a task
+    app.delete("/task/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await taskCollection.deleteOne(query);
+      res.send(result);
+    });
+    //get a task for update
+    app.get("/updateTask/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const task = await taskCollection.findOne(query);
+      res.send(task);
+    });
+    //update a task
+    app.put("/update/:id", async(req, res)=>{
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedTask = req.body;
+      const updateDoc = {
+        $set: {
+          task: updatedTask.newTask
+        },
+      };
+      const result = await taskCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+    //complete a task
+    app.put("/taskComplete/:id", async(req, res)=>{
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          isCompleted: true
+        },
+      };
+      const result = await taskCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+    //get completed task
+    app.get("/completed", async(req, res)=>{
+      const query = {isCompleted: true};
+      const result = await taskCollection.find(query).toArray();
+      res.send(result);
+    })
   } finally {
   }
 }
