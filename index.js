@@ -22,6 +22,9 @@ async function run() {
     const taskCollection = client
       .db("taskManagement")
       .collection("taskDetails");
+      const taskComment = client
+      .db("taskManagement")
+      .collection("taskComments");
     //post task
     app.post("/task", async (req, res) => {
       const task = req.body;
@@ -92,6 +95,12 @@ async function run() {
         },
       };
       const result = await taskCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+    //add comment
+    app.post("/comment", async(req, res)=>{
+      const comment = req.body;
+      const result = await taskComment.insertOne(comment);
       res.send(result);
     })
   } finally {
