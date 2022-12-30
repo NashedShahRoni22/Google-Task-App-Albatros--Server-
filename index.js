@@ -33,7 +33,13 @@ async function run() {
     });
     //get task
     app.get("/alltask", async (req, res) => {
-      const query = {isCompleted:false};
+      let query = {};
+      if(req.query.email){
+        query = {
+          email: req.query.email,
+          isCompleted: false,
+        }
+      }
       const result = await taskCollection.find(query).toArray();
       res.send(result);
     });
@@ -80,7 +86,13 @@ async function run() {
     })
     //get completed task
     app.get("/completed", async(req, res)=>{
-      const query = {isCompleted: true};
+      let query = {};
+      if(req.query.email){
+        query = {
+          email: req.query.email,
+          isCompleted: true,
+        }
+      }
       const result = await taskCollection.find(query).toArray();
       res.send(result);
     })
@@ -103,6 +115,16 @@ async function run() {
       const result = await taskComment.insertOne(comment);
       res.send(result);
     })
+    app.get('/commentDetails', async(req, res) =>{
+      let query = {}
+      if(req.query.email){
+        query={
+          email: req.query.email,
+        }
+      }
+      const result = await taskComment.find(query).toArray()
+      res.send(result)
+    } )
   } finally {
   }
 }
